@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Maracucho">
+<title>Maracucho — Spanish trainer</title>
+<style>
+  :root{
+    --ink:#22303a; --muted:#5c6b76; --bg:#f7faf9; --card:#ffffff;
+    --teal:#0e7c7b; --teal-deep:#0a5f5e; --teal-soft:#e2f1f0;
+    --coral:#e8684a; --coral-soft:#fdeae4;
+    --gold:#e3a72f; --line:#e2e9e7; --good:#1a8f5c; --bad:#c94f3d;
+    --radius:14px; --shadow:0 1px 3px rgba(34,48,58,.08);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background:var(--bg); color:var(--ink); line-height:1.45;
+    padding-bottom:70px;
+  }
+  header{
+    background:var(--card); border-bottom:1px solid var(--line);
+    padding:14px 16px 10px; position:sticky; top:0; z-index:20;
+  }
+  .head-row{display:flex; align-items:center; justify-content:space-between; max-width:760px; margin:0 auto;}
+  h1{font-size:1.15rem; font-weight:700; letter-spacing:-.01em;}
+  h1 .accent{color:var(--teal);}
+  .xp-pill{
+    background:var(--teal-soft); color:var(--teal-deep); font-weight:700; font-size:.8rem;
+    padding:5px 12px; border-radius:999px; white-space:nowrap;
+  }
+  nav{
+    display:flex; gap:4px; overflow-x:auto; max-width:760px; margin:10px auto 0;
+    -webkit-overflow-scrolling:touch; scrollbar-width:none;
+  }
+  nav::-webkit-scrollbar{display:none;}
+  nav button{
+    border:none; background:transparent; color:var(--muted); font-size:.85rem; font-weight:600;
+    padding:8px 12px; border-radius:999px; cursor:pointer; white-space:nowrap;
+  }
+  nav button.on{background:var(--teal); color:#fff;}
+  main{max-width:760px; margin:0 auto; padding:16px;}
+  section{display:none;}
+  section.on{display:block;}
+  .card{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    box-shadow:var(--shadow); padding:16px; margin-bottom:14px;
+  }
+  h2{font-size:1rem; font-weight:700; margin-bottom:10px;}
+  h3{font-size:.85rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; margin-bottom:8px;}
+  .sub{color:var(--muted); font-size:.85rem;}
+  .btn{
+    display:inline-block; border:none; border-radius:10px; padding:11px 18px; font-size:.95rem;
+    font-weight:700; cursor:pointer; background:var(--teal); color:#fff; transition:transform .05s;
+  }
+  .btn:active{transform:scale(.97);}
+  .btn.coral{background:var(--coral);}
+  .btn.ghost{background:transparent; color:var(--teal-deep); border:1.5px solid var(--teal);}
+  .btn.gray{background:#eef2f1; color:var(--ink);}
+  .btn.sm{padding:7px 12px; font-size:.82rem;}
+  .btn:disabled{opacity:.45; cursor:default;}
+  .btn-row{display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;}
+  .chip{
+    display:inline-block; font-size:.68rem; font-weight:700; padding:3px 9px; border-radius:999px;
+    text-transform:uppercase; letter-spacing:.03em;
+  }
+  .chip.elders{background:var(--teal-soft); color:var(--teal-deep);}
+  .chip.casual{background:var(--coral-soft); color:#b34527;}
+  .chip.spang{background:#fff3d6; color:#8a6410;}
+  .chip.ret{background:#efe6fb; color:#6b3fa0;}
+  .chip.new{background:#e4f3ea; color:var(--good);}
+
+  /* Stats home */
+  .stat-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  .stat{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    box-shadow:var(--shadow); padding:14px;
+  }
+  .stat .num{font-size:1.9rem; font-weight:800; letter-spacing:-.02em;}
+  .stat .lbl{font-size:.75rem; color:var(--muted); font-weight:600;}
+  .stat.hero{grid-column:1 / -1; display:flex; align-items:center; gap:16px; background:linear-gradient(135deg, var(--teal) 0%, var(--teal-deep) 100%); border:none; color:#fff;}
+  .stat.hero .lbl{color:rgba(255,255,255,.85);}
+  .ring{position:relative; width:84px; height:84px; flex-shrink:0;}
+  .ring svg{transform:rotate(-90deg);}
+  .ring .lvl{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; font-weight:800; font-size:1.3rem; line-height:1;}
+  .ring .lvl small{font-size:.6rem; font-weight:700; opacity:.85;}
+  .stat.retain{border:1.5px solid var(--coral); }
+  .stat.retain .num{color:var(--coral);}
+  .bar-wrap{margin:8px 0 12px;}
+  .bar-label{display:flex; justify-content:space-between; font-size:.8rem; font-weight:600; margin-bottom:4px;}
+  .bar{height:9px; background:#edf1f0; border-radius:999px; overflow:hidden;}
+  .bar > div{height:100%; background:var(--teal); border-radius:999px; transition:width .4s;}
+  .trend{display:flex; align-items:flex-end; gap:4px; height:70px; margin-top:6px;}
+  .trend .tbar{flex:1; background:var(--teal-soft); border-radius:4px 4px 0 0; position:relative; min-height:3px;}
+  .trend .tbar.filled{background:var(--teal);}
+  .trend-dates{display:flex; gap:4px; margin-top:4px;}
+  .trend-dates span{flex:1; text-align:center; font-size:.55rem; color:var(--muted);}
+
+  /* Flashcard */
+  .flash{
+    min-height:190px; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; gap:10px; cursor:pointer; padding:22px 16px;
+  }
+  .flash .big{font-size:1.45rem; font-weight:800; letter-spacing:-.01em;}
+  .flash .note{font-size:.82rem; color:var(--muted); max-width:420px;}
+  .flash .hint{font-size:.72rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; font-weight:700;}
+  .sound-note{font-size:.9rem; color:var(--coral); font-weight:600;}
+  input[type=text]{
+    width:100%; padding:12px; font-size:1.05rem; border:1.5px solid var(--line); border-radius:10px;
+    background:#fff; color:var(--ink); font-family:inherit;
+  }
+  input[type=text]:focus{outline:none; border-color:var(--teal);}
+  .feedback{margin-top:10px; padding:12px; border-radius:10px; font-weight:600; font-size:.95rem;}
+  .feedback.ok{background:#e4f3ea; color:var(--good);}
+  .feedback.no{background:#fbe9e5; color:var(--bad);}
+  .progress-line{height:6px; background:#e8eeec; border-radius:999px; margin-bottom:14px; overflow:hidden;}
+  .progress-line > div{height:100%; background:var(--coral); border-radius:999px; transition:width .3s;}
+  .opt{display:block; width:100%; text-align:left; margin-top:8px; padding:12px; border:1.5px solid var(--line);
+    background:#fff; border-radius:10px; font-size:.95rem; cursor:pointer; font-family:inherit; color:var(--ink);}
+  .opt.ok{border-color:var(--good); background:#e4f3ea;}
+  .opt.no{border-color:var(--bad); background:#fbe9e5;}
+  .topic-pills{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;}
+  .topic-pills button{
+    border:1.5px solid var(--line); background:#fff; border-radius:999px; padding:6px 12px;
+    font-size:.78rem; font-weight:600; cursor:pointer; color:var(--muted);
+  }
+  .topic-pills button.on{border-color:var(--teal); color:var(--teal-deep); background:var(--teal-soft);}
+  .switch-row{display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--line);}
+  .switch-row:last-child{border-bottom:none;}
+  .toggle{position:relative; width:46px; height:26px; flex-shrink:0;}
+  .toggle input{opacity:0; width:0; height:0;}
+  .toggle span{
+    position:absolute; inset:0; background:#cfd8d6; border-radius:999px; cursor:pointer; transition:.2s;
+  }
+  .toggle span::after{
+    content:""; position:absolute; width:20px; height:20px; left:3px; top:3px; background:#fff;
+    border-radius:50%; transition:.2s;
+  }
+  .toggle input:checked + span{background:var(--teal);}
+  .toggle input:checked + span::after{left:23px;}
+  .celebrate{font-size:1.05rem; font-weight:800; color:var(--coral); text-align:center; margin:6px 0;}
+  .done-box{text-align:center; padding:26px 16px;}
+  .done-box .big{font-size:1.5rem; font-weight:800;}
+  table.mini{width:100%; border-collapse:collapse; font-size:.85rem;}
+  table.mini td{padding:6px 4px; border-bottom:1px solid var(--line);}
+  table.mini td:last-child{text-align:right; font-weight:700;}
+  @media (min-width:600px){
+    .stat-grid{grid-template-columns:repeat(4,1fr);}
+    .stat.hero{grid-column:1 / -1;}
+  }
+  .footer-note{font-size:.72rem; color:var(--muted); text-align:center; margin-top:18px;}
+  /* Layer 2: chat */
+  .chat-box{display:flex; flex-direction:column; gap:8px; min-height:260px; max-height:55vh; overflow-y:auto; padding:4px 2px;}
+  .msg{max-width:86%; padding:10px 13px; border-radius:14px; font-size:.95rem; white-space:pre-wrap; line-height:1.4;}
+  .msg.me{align-self:flex-end; background:var(--teal); color:#fff; border-bottom-right-radius:4px;}
+  .msg.ai{align-self:flex-start; background:#eef2f1; border-bottom-left-radius:4px;}
+  .msg.sys{align-self:center; background:var(--coral-soft); color:#8a3a22; font-size:.82rem; border-radius:10px;}
+  .chat-input-row{display:flex; gap:8px; margin-top:10px;}
+  .chat-input-row input{flex:1;}
+  .cost-line{font-size:.72rem; color:var(--muted); margin-top:8px; text-align:right;}
+  .say-btn{border:none; background:transparent; color:var(--teal-deep); font-size:.72rem; font-weight:700; cursor:pointer; padding:4px 0 0; font-family:inherit;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="head-row">
+    <h1>Maracucho <span class="accent">·</span> entrenador</h1>
+    <div class="xp-pill" id="xpPill">0 XP</div>
+  </div>
+  <nav id="nav"></nav>
+</header>
+
+<main>
+  <section id="tab-inicio"></section>
+  <section id="tab-sesion"></section>
+  <section id="tab-tarjetas"></section>
+  <section id="tab-verbos"></section>
+  <section id="tab-hablar"></section>
+  <section id="tab-escuchar"></section>
+  <section id="tab-charla"></section>
+  <section id="tab-ajustes"></section>
+  <!-- LAYER 2 (Charla) lives in the clearly marked block near the end
+       of the script. Remove that block plus the "charla" entry in TABS
+       and the offline core still works exactly the same. -->
+</main>
+
+<script>
+"use strict";
+// True when running from the HTTPS-hosted copy (GitHub Pages): fully offline
+// via service worker, but no Mac features (Charla, wifi sync).
+const HOSTED = location.protocol === "https:";
+/* =====================================================================
+   MARACUCHO TRAINER — Layer 1 (offline core)
+   All vocabulary lives in the VOCAB array right below. To add items,
+   copy a line, give it a new unique id, and reload. Nothing else needed.
+   Fields: id, es (Spanish), en (English), t (topic), r (register:
+   "e" = safe for elders, "c" = casual), n (note, optional),
+   s (how it really sounds with dropped s/r, optional).
+   Topics: familia, comidas, charla, textos, preguntas, spanglish
+===================================================================== */
+const VOCAB = [
+ // ---- Meeting the family ----
+ {id:1, es:"Mucho gusto", en:"Nice to meet you", t:"familia", r:"e"},
+ {id:2, es:"Un placer conocerlo", en:"A pleasure to meet you (to an elder, usted)", t:"familia", r:"e"},
+ {id:3, es:"¿Cómo está usted?", en:"How are you? (respectful, parents/grandparents)", t:"familia", r:"e"},
+ {id:4, es:"¿Cómo estás?", en:"How are you? (tú, with peers)", t:"familia", r:"c", n:"Tú with your girlfriend, cousins, and friends. Usted with her parents and grandparents.", s:"¿Cómo ehtáh?"},
+ {id:5, es:"la suegra", en:"mother-in-law", t:"familia", r:"e"},
+ {id:6, es:"el suegro", en:"father-in-law", t:"familia", r:"e"},
+ {id:7, es:"el cuñado / la cuñada", en:"brother-in-law / sister-in-law", t:"familia", r:"e"},
+ {id:8, es:"mijo / mija", en:"sweetie, dear (from mi hijo/a — elders say it to you)", t:"familia", r:"c", n:"You will hear this a lot. Warm, affectionate."},
+ {id:9, es:"Avísame", en:"Let me know / give me a heads-up", t:"familia", r:"e", n:"From avisar. Extremely high-frequency."},
+ {id:10, es:"Bienvenido", en:"Welcome", t:"familia", r:"e"},
+ {id:11, es:"Con permiso", en:"Excuse me (passing by, leaving the table)", t:"familia", r:"e"},
+ {id:12, es:"Gracias por recibirme", en:"Thanks for having me", t:"familia", r:"e"},
+ {id:13, es:"el chamo / la chama", en:"guy / girl, kid (Venezuelan)", t:"familia", r:"c"},
+ {id:14, es:"¿De qué parte de Maracaibo eres?", en:"What part of Maracaibo are you from? (tú)", t:"familia", r:"c", s:"¿De qué parte de Maracaibo ereh?"},
+ {id:15, es:"Saludos a la familia", en:"Say hi to the family for me", t:"familia", r:"e"},
+
+ // ---- Meals ----
+ {id:16, es:"la arepa", en:"arepa (corn cake, daily staple)", t:"comidas", r:"e"},
+ {id:17, es:"los tequeños", en:"fried cheese sticks (party food)", t:"comidas", r:"e", s:"loh tequeñoh"},
+ {id:18, es:"el patacón", en:"fried green plantain sandwich — a Maracaibo specialty", t:"comidas", r:"e"},
+ {id:19, es:"el pabellón", en:"pabellón (rice, black beans, shredded beef, plantain)", t:"comidas", r:"e"},
+ {id:20, es:"la hallaca", en:"hallaca (holiday tamale-like dish)", t:"comidas", r:"e"},
+ {id:21, es:"la mandoca", en:"mandoca (Maracucho fried cornmeal ring, breakfast)", t:"comidas", r:"e"},
+ {id:22, es:"el cepillado", en:"shaved ice with syrup (Maracucho treat)", t:"comidas", r:"e"},
+ {id:23, es:"Buen provecho", en:"Enjoy your meal", t:"comidas", r:"e"},
+ {id:24, es:"Está sabroso", en:"It's tasty", t:"comidas", r:"e", s:"Ehtá sabroso"},
+ {id:25, es:"Está buenísimo", en:"It's really good", t:"comidas", r:"e", s:"'Tá buenísimo"},
+ {id:26, es:"¿Quieres más?", en:"Do you want more? (tú)", t:"comidas", r:"c", s:"¿Quiereh máh?"},
+ {id:27, es:"¿Quiere más?", en:"Would you like more? (usted, to elders)", t:"comidas", r:"e"},
+ {id:28, es:"Estoy full", en:"I'm stuffed (yes, with English 'full' — very Venezuelan)", t:"comidas", r:"c"},
+ {id:29, es:"¿Qué hay de comer?", en:"What's there to eat?", t:"comidas", r:"c"},
+ {id:30, es:"Me encantó la comida", en:"I loved the food", t:"comidas", r:"e"},
+
+ // ---- Small talk ----
+ {id:31, es:"¿Qué más?", en:"What's up? / How's it going?", t:"charla", r:"c", s:"¿Qué máh?"},
+ {id:32, es:"¿Cómo va todo?", en:"How's everything going?", t:"charla", r:"e"},
+ {id:33, es:"chévere", en:"cool, nice, great (safe everywhere)", t:"charla", r:"e"},
+ {id:34, es:"fino", en:"cool, great (Venezuelan)", t:"charla", r:"c"},
+ {id:35, es:"de pana", en:"for real, seriously", t:"charla", r:"c"},
+ {id:36, es:"el pana / la pana", en:"buddy, friend", t:"charla", r:"c"},
+ {id:37, es:"burda de", en:"a ton of, super (burda de bueno = really good)", t:"charla", r:"c"},
+ {id:38, es:"¡Qué molleja!", en:"Wow! / No way! (the Maracucho exclamation)", t:"charla", r:"c", n:"Signature Maracucho. Fine among family and friends."},
+ {id:39, es:"vergación", en:"whoa / damn (Maracucho intensifier)", t:"charla", r:"c", n:"Recognize it, but it's on the vulgar side. Don't lead with it, and not with elders until they use it first."},
+ {id:40, es:"¡Épale!", en:"Hey! (friendly greeting)", t:"charla", r:"c"},
+ {id:41, es:"¿Y qué tal el trabajo?", en:"And how's work?", t:"charla", r:"e"},
+ {id:42, es:"¡Qué calorón!", en:"It's so hot! (a very Maracaibo complaint)", t:"charla", r:"c"},
+ {id:43, es:"tranquilo / tranquila", en:"no worries, relax, it's fine", t:"charla", r:"e"},
+ {id:44, es:"dale pues", en:"alright then, sounds good", t:"charla", r:"c", s:"dale pueh"},
+ {id:45, es:"No estoy seguro", en:"I'm not sure (segura if you were a woman)", t:"charla", r:"e"},
+ {id:46, es:"más o menos", en:"so-so, more or less", t:"charla", r:"e", s:"máh o menoh"},
+ {id:47, es:"ojalá", en:"hopefully, I hope so", t:"charla", r:"e"},
+ {id:48, es:"la parranda", en:"party, revelry", t:"charla", r:"c"},
+ {id:49, es:"el juntadero", en:"casual get-together, hangout spot", t:"charla", r:"c"},
+
+ // ---- Texting your girlfriend ----
+ {id:50, es:"q", en:"que / qué (texting)", t:"textos", r:"c"},
+ {id:51, es:"xq / pq", en:"porque / por qué (texting)", t:"textos", r:"c"},
+ {id:52, es:"toy", en:"estoy (texting: toy en casa = I'm home)", t:"textos", r:"c"},
+ {id:53, es:"'tá", en:"está ('tá bien = it's fine)", t:"textos", r:"c"},
+ {id:54, es:"pa'", en:"para (voy pa' la casa = heading home)", t:"textos", r:"c"},
+ {id:55, es:"tmb", en:"también (texting)", t:"textos", r:"c"},
+ {id:56, es:"ntp", en:"no te preocupes — don't worry (texting)", t:"textos", r:"c"},
+ {id:57, es:"dale", en:"okay, go ahead, sounds good", t:"textos", r:"c"},
+ {id:58, es:"listo", en:"done / okay / ready", t:"textos", r:"c"},
+ {id:59, es:"va", en:"okay (short agreement: ¿nos vemos a las 8? va)", t:"textos", r:"c"},
+ {id:60, es:"tqm", en:"te quiero mucho — love you lots (texting)", t:"textos", r:"c"},
+ {id:61, es:"bb / bebé", en:"babe", t:"textos", r:"c"},
+ {id:62, es:"mi amor", en:"my love", t:"textos", r:"c"},
+ {id:63, es:"jajaja", en:"hahaha (Spanish laughing — j, not h)", t:"textos", r:"c"},
+ {id:64, es:"¿Dónde estás?", en:"Where are you? (tú)", t:"textos", r:"c", s:"¿Ónde ehtáh?"},
+ {id:65, es:"Ya voy en camino", en:"On my way", t:"textos", r:"e"},
+ {id:66, es:"Avísame cuando llegues", en:"Text me when you get there", t:"textos", r:"e"},
+
+ // ---- Common questions ----
+ {id:67, es:"¿Cómo se dice...?", en:"How do you say...?", t:"preguntas", r:"e"},
+ {id:68, es:"¿Qué significa...?", en:"What does ... mean?", t:"preguntas", r:"e"},
+ {id:69, es:"¿Puede repetirlo, más despacio?", en:"Can you repeat that, slower? (usted)", t:"preguntas", r:"e"},
+ {id:70, es:"¿Me lo repites?", en:"Say that again? (tú, casual)", t:"preguntas", r:"c"},
+ {id:71, es:"¿Cuánto tiempo llevas aquí?", en:"How long have you been here? (tú)", t:"preguntas", r:"c"},
+ {id:72, es:"¿Dónde queda...?", en:"Where is ... located?", t:"preguntas", r:"e"},
+ {id:73, es:"¿A qué hora es...?", en:"What time is ...?", t:"preguntas", r:"e"},
+ {id:74, es:"¿Me ayudas con esto?", en:"Can you help me with this? (tú)", t:"preguntas", r:"c"},
+ {id:75, es:"¿Puedo ayudar en algo?", en:"Can I help with anything?", t:"preguntas", r:"e"},
+ {id:76, es:"¿Qué me recomiendas?", en:"What do you recommend? (tú)", t:"preguntas", r:"c"},
+
+ // ---- Miami / US-Venezuelan Spanglish (recognition only) ----
+ {id:77, es:"parquear", en:"to park (Spanglish)", t:"spanglish", r:"c"},
+ {id:78, es:"textear", en:"to text (Spanglish)", t:"spanglish", r:"c"},
+ {id:79, es:"chequear", en:"to check (Spanglish)", t:"spanglish", r:"c"},
+ {id:80, es:"rentar", en:"to rent (Spanglish)", t:"spanglish", r:"c"},
+ {id:81, es:"aplicar", en:"to apply — for a job, a visa (Spanglish)", t:"spanglish", r:"c"},
+ {id:82, es:"googlear", en:"to google (Spanglish)", t:"spanglish", r:"c"},
+ {id:83, es:"janguear", en:"to hang out (Spanglish)", t:"spanglish", r:"c"},
+ {id:84, es:"el mall", en:"the mall (Spanglish)", t:"spanglish", r:"c"},
+ {id:85, es:"la app", en:"the app (Spanglish)", t:"spanglish", r:"c"},
+ {id:86, es:"printear", en:"to print (Spanglish)", t:"spanglish", r:"c"},
+ {id:87, es:"el break", en:"a break (dame un break) (Spanglish)", t:"spanglish", r:"c"},
+ {id:88, es:"el parking", en:"the parking lot (Spanglish)", t:"spanglish", r:"c"},
+
+ // ---- The wedding (locked until you enable it in Ajustes; also useful
+ //      for Aruba in January and Madrid in May) ----
+ {id:89, es:"la boda", en:"the wedding", t:"boda", r:"e"},
+ {id:90, es:"los novios", en:"the couple / the newlyweds", t:"boda", r:"e"},
+ {id:91, es:"¡Felicidades!", en:"Congratulations!", t:"boda", r:"e"},
+ {id:92, es:"¡Que vivan los novios!", en:"Long live the newlyweds! (shouted after the toast)", t:"boda", r:"e"},
+ {id:93, es:"el brindis", en:"the toast (the speech + raised glass)", t:"boda", r:"e"},
+ {id:94, es:"brindar", en:"to toast (quiero brindar por... = I want to toast to...)", t:"boda", r:"e"},
+ {id:95, es:"¡Salud!", en:"Cheers!", t:"boda", r:"e"},
+ {id:96, es:"la pista de baile", en:"the dance floor", t:"boda", r:"c", s:"la pihta 'e baile"},
+ {id:97, es:"¿Bailamos?", en:"Shall we dance?", t:"boda", r:"e"},
+ {id:98, es:"Estás muy elegante", en:"You look really sharp (to a peer)", t:"boda", r:"c", s:"Ehtáh muy elegante"},
+ {id:99, es:"Se ve hermosa", en:"She looks beautiful (about the bride)", t:"boda", r:"e"},
+ {id:100, es:"la luna de miel", en:"the honeymoon", t:"boda", r:"e"},
+ {id:101, es:"la recepción", en:"the reception", t:"boda", r:"e"},
+ {id:102, es:"Soy Noah, el novio de...", en:"I'm Noah, ...'s boyfriend (your intro line)", t:"boda", r:"e"},
+ {id:103, es:"Un placer conocerlos", en:"A pleasure to meet you all", t:"boda", r:"e"},
+ {id:104, es:"la rumba", en:"the party (¡se armó la rumba! = the party's on!)", t:"boda", r:"c"}
+];
+
+const TOPICS = {
+  familia:"Conocer a la familia", comidas:"Comidas", charla:"Charla",
+  textos:"Textos", preguntas:"Preguntas", spanglish:"Spanglish", boda:"La boda"
+};
+
+/* ---- Speaking prompts: read, answer out loud, reveal, self-rate ---- */
+const SPEAKING = [
+ {p:"Greet her dad respectfully at the front door.", a:"Buenas tardes. ¿Cómo está usted? Mucho gusto.", n:"usted, always, until he tells you otherwise"},
+ {p:"Text-worthy but say it out loud: tell your girlfriend you're on your way.", a:"Ya voy en camino, mi amor.", n:""},
+ {p:"Compliment the food at dinner.", a:"Está buenísimo. Me encantó.", n:"safe with everyone"},
+ {p:"Ask a cousin what part of Maracaibo they're from.", a:"¿De qué parte de Maracaibo eres?", n:"tú with cousins"},
+ {p:"You didn't catch what her grandmother said. Ask politely.", a:"Perdón, no entendí. ¿Puede repetirlo más despacio?", n:"usted"},
+ {p:"Ask your girlfriend if she wants more coffee.", a:"¿Quieres más café?", n:""},
+ {p:"Say one true sentence about what you did yesterday (past tense).", a:"Ayer trabajé y después cociné con mi novia.", n:"any correct preterite counts — rate yourself on staying in past tense"},
+ {p:"Politely excuse yourself from the table.", a:"Con permiso.", n:""},
+ {p:"Tell a cousin the party last weekend was amazing (casual).", a:"¡Qué molleja! La fiesta estuvo buenísima.", n:"estuvo = preterite of estar"},
+ {p:"Ask her mom (usted) how long they've lived in Florida.", a:"¿Cuánto tiempo lleva usted viviendo en la Florida?", n:""},
+ {p:"You're offered a third arepa. Decline warmly.", a:"Gracias, pero estoy full.", n:"very Venezuelan"},
+ {p:"Tell your girlfriend you'll text her later and check she's good with it.", a:"Te escribo más tarde, ¿va?", n:""},
+ {p:"Offer to help in the kitchen.", a:"¿Puedo ayudar en algo?", n:""},
+ {p:"Congratulate a couple at a wedding.", a:"¡Felicidades! ¡Que vivan los novios!", n:"wedding essential"}
+];
+
+/* ---- Listening: TTS plays the standard form, you pick the meaning,
+        then the street pronunciation is shown ---- */
+const LISTENING = [
+ {es:"¿Cómo estás?", s:"¿Cómo ehtáh?", opts:["How are you?","Where are you?","Who are you?"], ans:0},
+ {es:"Vamos para la casa", s:"Vamoh pa' la casa", opts:["Let's go home","Let's go to the party","We're at the house"], ans:0},
+ {es:"¿Dónde está tu hermana?", s:"¿Ónde 'tá tu hermana?", opts:["Where's your sister?","How's your sister?","Is that your sister?"], ans:0},
+ {es:"Vamos a comer", s:"Vamoh a comé", opts:["Let's eat","Let's buy it","We already ate"], ans:0},
+ {es:"Estoy cansado", s:"'Toy cansao", opts:["I'm tired","I'm married","I'm busy"], ans:0},
+ {es:"¿Qué vas a hacer?", s:"¿Qué vah a hacé?", opts:["What are you going to do?","What did you do?","What do you have?"], ans:0},
+ {es:"Espérate un momento", s:"Epérate un momento", opts:["Hold on a moment","Hurry up","Come here a moment"], ans:0},
+ {es:"¿Tienes hambre?", s:"¿Tieneh hambre?", opts:["Are you hungry?","Are you a man?","Do you have time?"], ans:0},
+ {es:"Las arepas están listas", s:"Lah arepah 'tán lihtah", opts:["The arepas are ready","The arepas are gone","Make the arepas"], ans:0},
+ {es:"¿Para dónde vas?", s:"¿Pa' ónde vah?", opts:["Where are you headed?","Where are you from?","When are you going?"], ans:0},
+ {es:"Nos vemos más tarde", s:"Noh vemoh máh tarde", opts:["See you later","See you never","It's getting late"], ans:0},
+ {es:"Está haciendo mucho calor", s:"'Tá haciendo mucho caló", opts:["It's really hot","It's really cold","There's a lot of food"], ans:0}
+];
+
+/* =====================================================================
+   VERB ENGINE — present, preterite, imperfect, near future
+   Primary drilling is tú + usted (what the family actually uses).
+   The optional "vosotros" toggle drills Spain's second-person plural
+   (sois, tenéis, coméis) in the present and near future, for Madrid.
+===================================================================== */
+const VERBS = [
+ {inf:"hablar", en:"to speak"}, {inf:"cocinar", en:"to cook"},
+ {inf:"comer", en:"to eat"}, {inf:"vivir", en:"to live"},
+ {inf:"tener", en:"to have"}, {inf:"ser", en:"to be (identity)"},
+ {inf:"estar", en:"to be (state/place)"}, {inf:"ir", en:"to go"},
+ {inf:"hacer", en:"to do / make"}, {inf:"poder", en:"to be able to"},
+ {inf:"decir", en:"to say"}, {inf:"querer", en:"to want"},
+ {inf:"venir", en:"to come"}, {inf:"saber", en:"to know"},
+ {inf:"conseguir", en:"to find / get (Venezuelan: to find)"}
+];
+
+// Persons index order: 0 yo, 1 tú, 2 vosotros, 3 usted, 4 nosotros, 5 ellos
+const IRR = {
+ ser:{ pres:["soy","eres","sois","es","somos","son"],
+       pret:["fui","fuiste","fuiste","fue","fuimos","fueron"],
+       impf:["era","eras","eras","era","éramos","eran"] },
+ ir:{  pres:["voy","vas","vais","va","vamos","van"],
+       pret:["fui","fuiste","fuiste","fue","fuimos","fueron"],
+       impf:["iba","ibas","ibas","iba","íbamos","iban"] },
+ estar:{ pres:["estoy","estás","estáis","está","estamos","están"],
+         pret:["estuve","estuviste","estuviste","estuvo","estuvimos","estuvieron"] },
+ tener:{ pres:["tengo","tienes","tenéis","tiene","tenemos","tienen"],
+         pret:["tuve","tuviste","tuviste","tuvo","tuvimos","tuvieron"] },
+ hacer:{ pres:["hago","haces","hacéis","hace","hacemos","hacen"],
+         pret:["hice","hiciste","hiciste","hizo","hicimos","hicieron"] },
+ poder:{ pres:["puedo","puedes","podéis","puede","podemos","pueden"],
+         pret:["pude","pudiste","pudiste","pudo","pudimos","pudieron"] },
+ decir:{ pres:["digo","dices","decís","dice","decimos","dicen"],
+         pret:["dije","dijiste","dijiste","dijo","dijimos","dijeron"] },
+ querer:{ pres:["quiero","quieres","queréis","quiere","queremos","quieren"],
+          pret:["quise","quisiste","quisiste","quiso","quisimos","quisieron"] },
+ venir:{ pres:["vengo","vienes","venís","viene","venimos","vienen"],
+         pret:["vine","viniste","viniste","vino","vinimos","vinieron"] },
+ saber:{ pres:["sé","sabes","sabéis","sabe","sabemos","saben"],
+         pret:["supe","supiste","supiste","supo","supimos","supieron"] },
+ conseguir:{ pres:["consigo","consigues","conseguís","consigue","conseguimos","consiguen"],
+             pret:["conseguí","conseguiste","conseguiste","consiguió","conseguimos","consiguieron"] }
+};
+
+function conjugate(inf, tense, pIdx){
+  // tense: pres | pret | impf | futr (near future: ir a + inf)
+  if(tense === "futr"){
+    const ir = IRR.ir.pres;
+    return ir[pIdx] + " a " + inf;
+  }
+  const irr = IRR[inf];
+  if(irr && irr[tense]) return irr[tense][pIdx];
+  const stem = inf.slice(0,-2), end = inf.slice(-2);
+  const E = {
+    pres:{ ar:["o","as","áis","a","amos","an"], er:["o","es","éis","e","emos","en"], ir:["o","es","ís","e","imos","en"] },
+    pret:{ ar:["é","aste","aste","ó","amos","aron"], er:["í","iste","iste","ió","imos","ieron"], ir:["í","iste","iste","ió","imos","ieron"] },
+    impf:{ ar:["aba","abas","abas","aba","ábamos","aban"], er:["ía","ías","ías","ía","íamos","ían"], ir:["ía","ías","ías","ía","íamos","ían"] }
+  };
+  return stem + E[tense][end][pIdx];
+}
+
+const TENSE_NAMES = {pres:"Presente", pret:"Pretérito", impf:"Imperfecto", futr:"Futuro cercano (ir a...)"};
+const PERSON_LABELS = ["yo","tú","vosotros","usted","nosotros","ellos"];
+
+/* =====================================================================
+   STATE, STORAGE, SPACED REPETITION
+   Boxes 0..7 with expanding intervals (days). A miss demotes two boxes.
+   Cards never retire: even box 7 comes back, and every daily session
+   pulls extra "retention checks" from the oldest mastered cards.
+   "Retained long term" is only earned by answering correctly after a
+   gap of 30+ days, and it's revoked by any miss.
+===================================================================== */
+const INTERVALS = [0, 1, 3, 7, 16, 35, 75, 150];
+const MASTER_BOX = 5;
+const LS_KEY = "maracucho_trainer_v1";
+const DAY = 86400000;
+
+let S = loadState();
+
+function freshState(){
+  return { v:1, xp:0, vos:false, boda:false, cards:{}, hist:{}, created:Date.now(), ts:0 };
+}
+function loadState(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(raw){ const o = JSON.parse(raw); if(o && o.v === 1) return o; }
+  }catch(e){}
+  return freshState();
+}
+function save(){
+  S.ts = Date.now();
+  try{ localStorage.setItem(LS_KEY, JSON.stringify(S)); }
+  catch(e){ console.warn("No se pudo guardar", e); }
+  if(typeof syncPushSoon === "function") syncPushSoon();
+}
+function today(){ const d = new Date(); return d.toISOString().slice(0,10); }
+function card(id){
+  if(!S.cards[id]) S.cards[id] = {b:-1, due:0, last:0, lastOk:0, ok:0, no:0, proven:false};
+  return S.cards[id];
+}
+function logAnswer(correct, xp){
+  const t = today();
+  if(!S.hist[t]) S.hist[t] = {c:0, t:0, xp:0};
+  S.hist[t].t++; if(correct) S.hist[t].c++;
+  S.hist[t].xp += xp; S.xp += xp;
+  save(); renderXP();
+}
+function gradeCard(id, result){ // result: "no" | "close" | "yes"
+  const c = card(id); const now = Date.now();
+  if(result === "yes"){
+    c.ok++;
+    if(c.b >= MASTER_BOX && c.lastOk && (now - c.lastOk) >= 30*DAY) c.proven = true;
+    c.b = Math.min(INTERVALS.length-1, (c.b < 0 ? 0 : c.b) + 1);
+    c.lastOk = now;
+    const iv = INTERVALS[c.b] * (0.9 + Math.random()*0.25); // jitter
+    c.due = now + iv*DAY;
+    logAnswer(true, 10);
+  } else if(result === "close"){
+    if(c.b < 0) c.b = 0;
+    c.due = now + 1*DAY;
+    logAnswer(true, 4);
+  } else {
+    c.no++; c.proven = false;
+    c.b = Math.max(0, c.b - 2);
+    c.due = now; // back into active rotation immediately
+    logAnswer(false, 1);
+  }
+  c.last = now; save();
+}
+function dueCards(){
+  const now = Date.now();
+  return VOCAB.filter(v => { const c = S.cards[v.id]; return c && c.b >= 0 && c.due <= now; });
+}
+function newCards(n){
+  return VOCAB.filter(v => (!S.cards[v.id] || S.cards[v.id].b < 0) && (S.boda || v.t !== "boda")).slice(0, n);
+}
+function retentionChecks(n){
+  const pool = VOCAB.filter(v => { const c = S.cards[v.id]; return c && c.b >= MASTER_BOX; })
+    .sort((a,b) => (S.cards[a.id].last||0) - (S.cards[b.id].last||0)).slice(0, 12);
+  const out = [];
+  while(pool.length && out.length < n){
+    out.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]);
+  }
+  return out;
+}
+function counts(){
+  let mastered=0, retained=0, recent=0, seen=0;
+  for(const v of VOCAB){
+    const c = S.cards[v.id]; if(!c || c.b < 0) continue;
+    seen++;
+    if(c.b >= MASTER_BOX){ mastered++; if(c.proven) retained++; }
+    else if(c.b >= 1) recent++;
+  }
+  return {mastered, retained, recent, seen, total:VOCAB.length};
+}
+function level(){
+  let l = 1; while(S.xp >= 60*l*(l+1)) l++;
+  const base = 60*(l-1)*l, next = 60*l*(l+1);
+  return {l, pct: Math.min(1,(S.xp-base)/(next-base)), toNext: next - S.xp};
+}
+
+/* ============================ UI SHELL ============================ */
+const TABS = [
+  ["inicio","Inicio"], ["sesion","Sesión"], ["tarjetas","Tarjetas"],
+  ["verbos","Verbos"], ["hablar","Hablar"], ["escuchar","Escuchar"],
+  ["charla","Charla"], ["ajustes","Ajustes"]
+];
+const $ = sel => document.querySelector(sel);
+function el(html){ const d = document.createElement("div"); d.innerHTML = html.trim(); return d.firstChild; }
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+function buildNav(){
+  const nav = $("#nav"); nav.innerHTML = "";
+  TABS.forEach(([id,label]) => {
+    const b = el(`<button data-t="${id}">${label}</button>`);
+    b.onclick = () => showTab(id);
+    nav.appendChild(b);
+  });
+}
+function showTab(id){
+  document.querySelectorAll("nav button").forEach(b => b.classList.toggle("on", b.dataset.t === id));
+  TABS.forEach(([t]) => $("#tab-"+t).classList.toggle("on", t === id));
+  const r = {inicio:renderHome, sesion:renderSession, tarjetas:renderCards,
+             verbos:renderVerbs, hablar:renderSpeak, escuchar:renderListen,
+             charla:renderCharla, ajustes:renderSettings};
+  r[id]();
+  window.scrollTo(0,0);
+}
+function renderXP(){
+  const lv = level();
+  $("#xpPill").textContent = `Nivel ${lv.l} · ${S.xp} XP`;
+}
+function regChip(r){
+  return r === "e" ? `<span class="chip elders">Seguro con mayores</span>`
+                   : `<span class="chip casual">Casual</span>`;
+}
+
+/* ============================ HOME / STATS ============================ */
+function renderHome(){
+  const c = counts(), lv = level();
+  const circ = 2*Math.PI*36;
+  const days = [];
+  for(let i=13;i>=0;i--){
+    const d = new Date(Date.now()-i*DAY).toISOString().slice(0,10);
+    const h = S.hist[d];
+    days.push({d, acc: h && h.t ? h.c/h.t : null, t: h ? h.t : 0});
+  }
+  const maxT = Math.max(1, ...days.map(x=>x.t));
+  const topicBars = Object.keys(TOPICS).map(t => {
+    const items = VOCAB.filter(v => v.t === t);
+    let sum = 0;
+    items.forEach(v => { const cc = S.cards[v.id]; sum += cc && cc.b > 0 ? Math.min(cc.b, MASTER_BOX) : 0; });
+    const pct = Math.round(100*sum/(items.length*MASTER_BOX));
+    return `<div class="bar-wrap"><div class="bar-label"><span>${TOPICS[t]}</span><span>${pct}%</span></div>
+      <div class="bar"><div style="width:${pct}%"></div></div></div>`;
+  }).join("");
+
+  const accCells = days.map(x => {
+    const h = x.acc === null ? 3 : Math.max(6, Math.round(64*x.acc));
+    return `<div class="tbar ${x.acc !== null ? "filled":""}" style="height:${h}px" title="${x.d}: ${x.acc===null?"—":Math.round(x.acc*100)+"% de "+x.t}"></div>`;
+  }).join("");
+  const dateLbls = days.map((x,i) => `<span>${i%3===0? x.d.slice(8):""}</span>`).join("");
+
+  const streakless = S.hist[today()] ? `Hoy: ${S.hist[today()].t} respuestas, +${S.hist[today()].xp} XP` : "Todavía no has practicado hoy. La sesión diaria toma ~15 min.";
+
+  $("#tab-inicio").innerHTML = `
+    <div class="stat-grid">
+      <div class="stat hero">
+        <div class="ring">
+          <svg width="84" height="84" viewBox="0 0 84 84">
+            <circle cx="42" cy="42" r="36" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="7"/>
+            <circle cx="42" cy="42" r="36" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round"
+              stroke-dasharray="${circ}" stroke-dashoffset="${circ*(1-lv.pct)}"/>
+          </svg>
+          <div class="lvl">${lv.l}<small>NIVEL</small></div>
+        </div>
+        <div>
+          <div class="num">${S.xp} XP</div>
+          <div class="lbl">${lv.toNext} XP para el nivel ${lv.l+1} · ${esc(streakless)}</div>
+        </div>
+      </div>
+      <div class="stat"><div class="num">${c.mastered}</div><div class="lbl">Dominadas (de ${c.total})</div></div>
+      <div class="stat retain"><div class="num">${c.retained}</div><div class="lbl">Retenidas a largo plazo (30+ días)</div></div>
+      <div class="stat"><div class="num">${c.recent}</div><div class="lbl">Aprendidas recientemente</div></div>
+      <div class="stat"><div class="num">${dueCards().length}</div><div class="lbl">Para repasar hoy</div></div>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <h2>Precisión, últimos 14 días</h2>
+      <div class="trend">${accCells}</div>
+      <div class="trend-dates">${dateLbls}</div>
+    </div>
+    <div class="card">
+      <h2>Dominio por tema</h2>
+      ${topicBars}
+    </div>
+    <div class="card" style="text-align:center">
+      <p class="sub" style="margin-bottom:10px">La sesión diaria mezcla material nuevo, repaso acumulativo y chequeos de retención de semanas anteriores.</p>
+      <button class="btn coral" onclick="showTab('sesion')">Empezar la sesión de hoy</button>
+    </div>
+    <p class="footer-note">Progreso guardado en este navegador. Haz un respaldo en Ajustes de vez en cuando.</p>
+  `;
+}
+
+/* ============================ DAILY SESSION ============================ */
+let SES = null;
+function buildSession(){
+  const due = shuffle(dueCards()).slice(0, 12);
+  const fresh = newCards(Math.max(2, 6 - Math.floor(due.length/3)));
+  const ret = retentionChecks(3).filter(v => !due.includes(v));
+  const q = [];
+  fresh.forEach(v => q.push({k:"intro", v}));
+  due.forEach(v => q.push({k:"card", v}));
+  ret.forEach(v => q.push({k:"card", v, ret:true}));
+  for(let i=0;i<6;i++) q.push({k:"verb"});
+  shuffle(q);
+  // sprinkle speaking + listening at fixed spots so they break up the drilling
+  const sp = shuffle(SPEAKING.slice()).slice(0,2).map(x => ({k:"speak", v:x}));
+  const li = shuffle(LISTENING.slice()).slice(0,2).map(x => ({k:"listen", v:x}));
+  if(q.length > 3){ q.splice(Math.floor(q.length/3), 0, sp[0], li[0]); q.splice(Math.floor(q.length*2/3), 0, sp[1], li[1]); }
+  else q.push(sp[0], li[0], sp[1], li[1]);
+  return {q, i:0, ok:0, t:0, xp0:S.xp};
+}
+function renderSession(){
+  const root = $("#tab-sesion");
+  if(!SES || SES.i >= SES.q.length){
+    root.innerHTML = `
+      <div class="card done-box">
+        <h2>Sesión diaria</h2>
+        <p class="sub" style="margin:8px 0 16px">Unos 15 minutos: tarjetas nuevas, repaso pendiente, chequeos de retención de material viejo, verbos, una ronda de hablar y otra de escuchar.</p>
+        <button class="btn coral" id="startSes">Empezar</button>
+      </div>`;
+    $("#startSes").onclick = () => { SES = buildSession(); renderSession(); };
+    return;
+  }
+  stepUI(root);
+}
+function stepUI(root){
+  const step = SES.q[SES.i];
+  const pct = Math.round(100*SES.i/SES.q.length);
+  const shell = (inner) => {
+    root.innerHTML = `<div class="progress-line"><div style="width:${pct}%"></div></div>${inner}`;
+  };
+  const next = () => { SES.i++; if(SES.i >= SES.q.length) sessionDone(root); else stepUI(root); };
+
+  if(step.k === "intro"){
+    const v = step.v;
+    shell(`<div class="card flash">
+      <span class="chip new">Nueva</span>
+      <div class="big">${esc(v.es)}</div>
+      <div>${esc(v.en)}</div>
+      ${v.n ? `<div class="note">${esc(v.n)}</div>`:""}
+      ${v.s ? `<div class="sound-note">En la calle suena: ${esc(v.s)}</div>`:""}
+      <div>${regChip(v.r)}</div>
+      <div class="btn-row"><button class="btn" id="gotIt">Entendido</button></div>
+    </div>`);
+    $("#gotIt").onclick = () => {
+      const c = card(v.id); c.b = 0; c.due = Date.now(); c.last = Date.now(); save();
+      next();
+    };
+    return;
+  }
+  if(step.k === "card"){
+    flashcardUI(root, step.v, step.ret, next, pct);
+    return;
+  }
+  if(step.k === "verb"){
+    verbQuestionUI(root, next, pct);
+    return;
+  }
+  if(step.k === "speak"){
+    speakUI(root, step.v, next, pct);
+    return;
+  }
+  if(step.k === "listen"){
+    listenUI(root, step.v, next, pct);
+    return;
+  }
+}
+function sessionDone(root){
+  const gained = S.xp - SES.xp0;
+  const acc = SES.t ? Math.round(100*SES.ok/SES.t) : 0;
+  root.innerHTML = `
+    <div class="card done-box">
+      <div class="celebrate">¡Qué molleja! Sesión completa.</div>
+      <div class="big">+${gained} XP</div>
+      <p class="sub" style="margin:10px 0 16px">Precisión de hoy: ${acc}%. Vuelve mañana; el repaso de mañana ya está programado con intervalos más largos.</p>
+      <div class="btn-row" style="justify-content:center">
+        <button class="btn" onclick="showTab('inicio')">Ver mis estadísticas</button>
+        <button class="btn ghost" id="again">Otra ronda</button>
+      </div>
+    </div>`;
+  $("#again").onclick = () => { SES = buildSession(); renderSession(); };
+  SES = null;
+}
+function flashcardUI(root, v, isRet, next, pct){
+  // Production first: English on the front for everything except Spanglish
+  // (Spanglish is recognition-only, so Spanish goes on the front).
+  const prodMode = v.t !== "spanglish";
+  const front = prodMode ? v.en : v.es;
+  const backMain = prodMode ? v.es : v.en;
+  root.innerHTML = `
+    <div class="progress-line"><div style="width:${pct}%"></div></div>
+    <div class="card flash" id="fc">
+      ${isRet ? '<span class="chip ret">Chequeo de retención</span>' : ""}
+      <div class="hint">${prodMode ? "Dilo en español (en voz alta)" : "¿Qué significa? (solo reconocer)"}</div>
+      <div class="big">${esc(front)}</div>
+      <div class="sub">Toca para ver la respuesta</div>
+    </div>`;
+  $("#fc").onclick = () => {
+    $("#fc").onclick = null;
+    $("#fc").innerHTML = `
+      ${isRet ? '<span class="chip ret">Chequeo de retención</span>' : ""}
+      <div class="big">${esc(backMain)}</div>
+      <div>${esc(prodMode ? v.en : v.es)}</div>
+      ${v.n ? `<div class="note">${esc(v.n)}</div>`:""}
+      ${v.s ? `<div class="sound-note">En la calle suena: ${esc(v.s)}</div>`:""}
+      <div>${regChip(v.r)}</div>
+      <div class="btn-row">
+        <button class="btn gray" id="gNo">No la sabía</button>
+        <button class="btn ghost" id="gClose">Casi</button>
+        <button class="btn" id="gYes">La sé</button>
+      </div>`;
+    $("#gNo").onclick = () => { gradeCard(v.id,"no"); SES && SES.t++; next(); };
+    $("#gClose").onclick = () => { gradeCard(v.id,"close"); if(SES){SES.t++; SES.ok++;} next(); };
+    $("#gYes").onclick = () => { gradeCard(v.id,"yes"); if(SES){SES.t++; SES.ok++;} next(); };
+  };
+}
+
+/* ============================ FLASHCARDS TAB ============================ */
+let cardTopic = "all";
+function renderCards(){
+  const root = $("#tab-tarjetas");
+  const pills = ['all', ...Object.keys(TOPICS)].map(t =>
+    `<button class="${cardTopic===t?"on":""}" data-p="${t}">${t==="all"?"Todas":TOPICS[t]}</button>`).join("");
+  root.innerHTML = `
+    <div class="card">
+      <h2>Tarjetas por tema</h2>
+      <p class="sub" style="margin-bottom:10px">Repaso libre. Las calificaciones cuentan igual para tu repetición espaciada.</p>
+      <div class="topic-pills">${pills}</div>
+      <div class="btn-row" style="margin-top:0">
+        <button class="btn" id="startDeck">Repasar este mazo</button>
+      </div>
+    </div>
+    <div id="deckArea"></div>`;
+  root.querySelectorAll(".topic-pills button").forEach(b => {
+    b.onclick = () => { cardTopic = b.dataset.p; renderCards(); };
+  });
+  $("#startDeck").onclick = () => {
+    const pool = shuffle(VOCAB.filter(v => cardTopic === "all" || v.t === cardTopic)).slice(0, 15);
+    runDeck(pool);
+  };
+}
+function runDeck(pool){
+  const area = $("#deckArea");
+  let i = 0;
+  const step = () => {
+    if(i >= pool.length){
+      area.innerHTML = `<div class="card done-box"><div class="celebrate">¡Listo el mazo!</div>
+        <button class="btn" onclick="renderCards()">Volver</button></div>`;
+      return;
+    }
+    const pct = Math.round(100*i/pool.length);
+    flashcardUI(area, pool[i], false, () => { i++; step(); }, pct);
+  };
+  step();
+}
+
+/* ============================ VERB TRAINER ============================ */
+let verbTense = "mix";
+function pickVerbQ(){
+  const v = VERBS[Math.floor(Math.random()*VERBS.length)];
+  const tenses = verbTense === "mix" ? ["pres","pret","impf","futr"] : [verbTense];
+  const tense = tenses[Math.floor(Math.random()*tenses.length)];
+  // favor tú and yo (his production targets); vosotros only in vosotros mode
+  const base = S.vos ? [0,1,2,3,4,5,0,2] : [0,1,1,3,4,5,0,1];
+  let pIdx = base[Math.floor(Math.random()*base.length)];
+  // only quiz vosotros in the present and near future, where these tables
+  // match Spain's forms; past-tense vosotros (hablasteis) isn't drilled here
+  if(pIdx === 2 && (tense === "pret" || tense === "impf")) pIdx = 1;
+  return {v, tense, pIdx, answer: conjugate(v.inf, tense, pIdx)};
+}
+function norm(s){ return s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim(); }
+function verbQuestionUI(root, next, pct){
+  const q = pickVerbQ();
+  const personLabel = PERSON_LABELS[q.pIdx];
+  const vosNote = "";
+  root.innerHTML = `
+    ${pct !== undefined ? `<div class="progress-line"><div style="width:${pct}%"></div></div>` : ""}
+    <div class="card">
+      <h3>${TENSE_NAMES[q.tense]}</h3>
+      <div style="font-size:1.25rem; font-weight:800; margin-bottom:2px">${q.v.inf} <span class="sub" style="font-weight:600">(${q.v.en})</span></div>
+      <div style="margin:6px 0 10px; font-weight:700; color:var(--teal-deep)">${personLabel} …</div>
+      <input type="text" id="vAns" autocomplete="off" autocapitalize="off" placeholder="Escribe la conjugación">
+      <div class="btn-row"><button class="btn" id="vCheck">Comprobar</button></div>
+      <div id="vFb"></div>
+    </div>`;
+  const input = $("#vAns"); input.focus();
+  const check = () => {
+    const raw = input.value, good = raw.trim().toLowerCase() === q.answer.toLowerCase();
+    const goodNoAccent = !good && norm(raw) === norm(q.answer);
+    const ok = good || goodNoAccent;
+    $("#vFb").innerHTML = ok
+      ? `<div class="feedback ok">${good ? "¡Qué molleja! Correcto." : "Correcto — pero fíjate en la tilde:"} <b>${personLabel} ${esc(q.answer)}</b>${vosNote}</div>`
+      : `<div class="feedback no">Era: <b>${personLabel} ${esc(q.answer)}</b>${vosNote}</div>`;
+    logAnswer(ok, ok ? 12 : 2);
+    if(SES){ SES.t++; if(ok) SES.ok++; }
+    $("#vCheck").textContent = "Siguiente";
+    $("#vCheck").onclick = next ? next : () => verbQuestionUI(root);
+  };
+  $("#vCheck").onclick = check;
+  input.onkeydown = e => { if(e.key === "Enter") $("#vCheck").click(); };
+}
+function renderVerbs(){
+  const root = $("#tab-verbos");
+  const tensePills = [["mix","Mezcla"],["pres","Presente"],["pret","Pretérito"],["impf","Imperfecto"],["futr","Futuro cercano"]]
+    .map(([k,l]) => `<button class="${verbTense===k?"on":""}" data-tn="${k}">${l}</button>`).join("");
+  root.innerHTML = `
+    <div class="card">
+      <h2>Entrenador de verbos</h2>
+      <div class="switch-row">
+        <div><b>Modo vosotros</b><div class="sub">La familia usa tú, así que déjalo apagado. Actívalo antes de Madrid en mayo: allá oirás tenéis, sois, queréis.</div></div>
+        <label class="toggle"><input type="checkbox" id="vosT" ${S.vos?"checked":""}><span></span></label>
+      </div>
+      <div class="topic-pills" style="margin-top:12px">${tensePills}</div>
+      <div class="btn-row" style="margin-top:4px"><button class="btn" id="vGo">Practicar</button></div>
+    </div>
+    <div id="verbArea"></div>
+    <div class="card">
+      <h3>Referencia rápida: los 8 pretéritos irregulares</h3>
+      <table class="mini">
+        <tr><td>poder</td><td>pude, pudiste, pudo</td></tr>
+        <tr><td>hacer</td><td>hice, hiciste, hizo</td></tr>
+        <tr><td>estar</td><td>estuve, estuviste, estuvo</td></tr>
+        <tr><td>decir</td><td>dije, dijiste, dijo</td></tr>
+        <tr><td>tener</td><td>tuve, tuviste, tuvo</td></tr>
+        <tr><td>ser / ir</td><td>fui, fuiste, fue</td></tr>
+        <tr><td>venir</td><td>vine, viniste, vino</td></tr>
+        <tr><td>querer</td><td>quise, quisiste, quiso</td></tr>
+      </table>
+      <p class="sub" style="margin-top:8px">Con los padres y abuelos: usted (¿Cómo está usted? ¿Quiere más?). El tú es para tu novia, primos y amigos.</p>
+    </div>`;
+  $("#vosT").onchange = e => { S.vos = e.target.checked; save(); };
+  root.querySelectorAll("[data-tn]").forEach(b => {
+    b.onclick = () => { verbTense = b.dataset.tn; renderVerbs(); };
+  });
+  $("#vGo").onclick = () => verbQuestionUI($("#verbArea"));
+}
+
+/* ============================ SPEAKING ============================ */
+function speakUI(root, item, next, pct){
+  root.innerHTML = `
+    ${pct !== undefined ? `<div class="progress-line"><div style="width:${pct}%"></div></div>` : ""}
+    <div class="card">
+      <h3>Hablar — dilo en voz alta</h3>
+      <p style="font-size:1.1rem; font-weight:700; margin:8px 0 4px">${esc(item.p)}</p>
+      <p class="sub">Di tu respuesta en voz alta ANTES de revelar. Esa es la práctica.</p>
+      <div class="btn-row"><button class="btn" id="rev">Revelar respuesta</button></div>
+      <div id="spArea"></div>
+    </div>`;
+  $("#rev").onclick = () => {
+    $("#rev").style.display = "none";
+    $("#spArea").innerHTML = `
+      <div class="feedback ok" style="font-size:1.05rem">${esc(item.a)}</div>
+      ${item.n ? `<p class="sub" style="margin-top:6px">${esc(item.n)}</p>`:""}
+      <p class="sub" style="margin-top:10px"><b>¿Cómo te fue?</b></p>
+      <div class="btn-row">
+        <button class="btn gray" id="r0">No me salió</button>
+        <button class="btn ghost" id="r1">Cerca</button>
+        <button class="btn" id="r2">¡La clavé!</button>
+      </div>`;
+    const done = (xp, ok) => {
+      logAnswer(ok, xp);
+      if(SES){ SES.t++; if(ok) SES.ok++; }
+      if(next) next(); else renderSpeak(true);
+    };
+    $("#r0").onclick = () => done(2, false);
+    $("#r1").onclick = () => done(8, true);
+    $("#r2").onclick = () => done(15, true);
+  };
+}
+function renderSpeak(auto){
+  const root = $("#tab-hablar");
+  if(auto){
+    speakUI(root, SPEAKING[Math.floor(Math.random()*SPEAKING.length)]);
+    return;
+  }
+  root.innerHTML = `
+    <div class="card done-box">
+      <h2>Práctica de hablar</h2>
+      <p class="sub" style="margin:8px 0 14px">Te doy una situación, la dices en voz alta, revelas la versión maracucha y te calificas tú mismo. Sin micrófono, sin presión.</p>
+      <button class="btn coral" id="spGo">Dame una situación</button>
+    </div>`;
+  $("#spGo").onclick = () => renderSpeak(true);
+}
+
+/* ============================ LISTENING ============================ */
+let voiceES = null;
+function pickVoice(){
+  const vs = window.speechSynthesis ? speechSynthesis.getVoices() : [];
+  voiceES = vs.find(v => /es[-_]/i.test(v.lang) && /US|MX|41|VE|CO/i.test(v.lang))
+         || vs.find(v => v.lang && v.lang.toLowerCase().startsWith("es")) || null;
+}
+if(window.speechSynthesis){
+  pickVoice();
+  speechSynthesis.onvoiceschanged = pickVoice;
+}
+function say(text){
+  if(!window.speechSynthesis){ alert("Este navegador no tiene voz. El texto: " + text); return; }
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  if(voiceES) u.voice = voiceES;
+  u.lang = voiceES ? voiceES.lang : "es-US";
+  u.rate = 0.95;
+  speechSynthesis.speak(u);
+}
+function listenUI(root, item, next, pct){
+  const opts = item.opts.map((o,i) => ({o,i}));
+  shuffle(opts);
+  root.innerHTML = `
+    ${pct !== undefined ? `<div class="progress-line"><div style="width:${pct}%"></div></div>` : ""}
+    <div class="card">
+      <h3>Escuchar</h3>
+      <p class="sub">La voz del navegador no hace acento caribeño. Escucha, elige el significado, y luego te muestro cómo suena de verdad en la calle.</p>
+      <div class="btn-row"><button class="btn ghost" id="play">▶ Escuchar</button></div>
+      <div id="liOpts" style="margin-top:8px">
+        ${opts.map(x => `<button class="opt" data-i="${x.i}">${esc(x.o)}</button>`).join("")}
+      </div>
+      <div id="liFb"></div>
+    </div>`;
+  $("#play").onclick = () => say(item.es);
+  say(item.es);
+  root.querySelectorAll(".opt").forEach(b => {
+    b.onclick = () => {
+      const ok = Number(b.dataset.i) === item.ans;
+      root.querySelectorAll(".opt").forEach(x => {
+        x.disabled = true;
+        if(Number(x.dataset.i) === item.ans) x.classList.add("ok");
+      });
+      if(!ok) b.classList.add("no");
+      $("#liFb").innerHTML = `
+        <div class="feedback ${ok?"ok":"no"}">${ok ? "¡Qué molleja! Bien oído." : "Casi."} Escrito: <b>${esc(item.es)}</b></div>
+        <p class="sound-note" style="margin-top:8px">En la calle suena: ${esc(item.s)}</p>
+        <div class="btn-row"><button class="btn" id="liNext">Siguiente</button></div>`;
+      logAnswer(ok, ok ? 10 : 2);
+      if(SES){ SES.t++; if(ok) SES.ok++; }
+      $("#liNext").onclick = next ? next : () => renderListen(true);
+    };
+  });
+}
+function renderListen(auto){
+  const root = $("#tab-escuchar");
+  if(auto){
+    listenUI(root, LISTENING[Math.floor(Math.random()*LISTENING.length)]);
+    return;
+  }
+  root.innerHTML = `
+    <div class="card done-box">
+      <h2>Entrenamiento del oído</h2>
+      <p class="sub" style="margin:8px 0 14px">Frases cortas con la voz del navegador, más la escritura reducida (ehtáh, pa', 'tá) para que tu oído aprenda qué sonidos se caen en el habla caribeña.</p>
+      <button class="btn coral" id="liGo">Empezar</button>
+    </div>`;
+  $("#liGo").onclick = () => renderListen(true);
+}
+
+/* ============================ SETTINGS ============================ */
+function renderSettings(){
+  const root = $("#tab-ajustes");
+  root.innerHTML = `
+    <div class="card">
+      <h2>Ajustes</h2>
+      <div class="switch-row">
+        <div><b>Modo vosotros</b><div class="sub">La familia usa tú; déjalo apagado. Es para Madrid en mayo.</div></div>
+        <label class="toggle"><input type="checkbox" id="vosT2" ${S.vos?"checked":""}><span></span></label>
+      </div>
+      <div class="switch-row">
+        <div><b>Vocabulario de boda</b><div class="sub">Actívalo unas semanas antes de noviembre. Las tarjetas de boda entran a las lecciones diarias. (Siempre puedes verlas en Tarjetas.)</div></div>
+        <label class="toggle"><input type="checkbox" id="bodaT" ${S.boda?"checked":""}><span></span></label>
+      </div>
+    </div>
+    ${HOSTED ? `
+    <div class="card">
+      <h2>Versión de bolsillo</h2>
+      <p class="sub">Esta copia funciona sin internet en cualquier parte y guarda el progreso en este teléfono. No se sincroniza sola con la Mac: para pasar progreso de un lado al otro, usa Exportar aquí e Importar en el otro dispositivo (el más reciente debe reemplazar al más viejo).</p>
+    </div>` : `
+    <div class="card">
+      <h2>Sincronización por wifi</h2>
+      <p class="sub" style="margin-bottom:8px">El progreso se guarda en tu Mac cuando está en la misma wifi. Fuera de casa la app funciona igual y se sincroniza sola al volver. El más reciente gana.</p>
+      <div id="syncStatus" class="sub" style="font-weight:600; margin-bottom:8px">Comprobando...</div>
+      <label class="sub" style="font-weight:600">Dirección de la Mac</label>
+      <input type="text" id="macHostIn" value="${esc(macHost())}" placeholder="http://192.168.1.233:8765" style="margin-top:4px">
+      <p class="sub" style="margin-top:6px">Si tu router le cambia la IP a la Mac, actualízala aquí. La Mac imprime la correcta al arrancar el servidor.</p>
+      <div class="btn-row">
+        <button class="btn sm" id="saveHost">Guardar dirección</button>
+        <button class="btn sm ghost" id="syncNow">Reintentar / Sincronizar</button>
+      </div>
+    </div>`}
+    <div class="card">
+      <h2>Respaldo del progreso</h2>
+      <p class="sub" style="margin-bottom:10px">Exporta un archivo para respaldar tu progreso o moverlo a otro dispositivo (por ejemplo, de la Mac al teléfono). Importa para restaurarlo.</p>
+      <div class="btn-row">
+        <button class="btn" id="expBtn">Exportar progreso</button>
+        <button class="btn ghost" id="impBtn">Importar progreso</button>
+        <input type="file" id="impFile" accept=".json,application/json" style="display:none">
+      </div>
+      <div id="ioMsg"></div>
+    </div>
+    <div class="card">
+      <h2>Zona de peligro</h2>
+      <div class="btn-row" style="margin-top:0">
+        <button class="btn gray" id="resetBtn">Borrar todo el progreso</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Las dos versiones</h2>
+      <p class="sub">Versión de casa (http://192.168...): todo, incluida Charla y sincronización automática con la Mac. Versión de bolsillo (https://...github.io): funciona sin internet en cualquier parte, sin Charla ni sincronización. Puente entre las dos: Exportar / Importar.</p>
+    </div>`;
+  $("#vosT2").onchange = e => { S.vos = e.target.checked; save(); };
+  $("#bodaT").onchange = e => { S.boda = e.target.checked; save(); };
+  if(!HOSTED){
+  updateSyncStatus();
+  $("#saveHost").onclick = () => {
+    let h = $("#macHostIn").value.trim().replace(/\/+$/,"");
+    if(h && !/^https?:\/\//.test(h)) h = "http://" + h;
+    try{ localStorage.setItem("maracucho_mac_host", h); }catch(e){}
+    SYNC.dead = false;
+    $("#syncStatus").textContent = "Dirección guardada. Probando...";
+    syncPull().then(() => { syncPush(); updateSyncStatus(); });
+  };
+  $("#syncNow").onclick = async () => {
+    SYNC.dead = false;                    // manual retry re-arms the connection
+    $("#syncStatus").textContent = "Sincronizando...";
+    await syncPull(); await syncPush(); updateSyncStatus();
+  };
+  }
+  $("#expBtn").onclick = () => {
+    const blob = new Blob([JSON.stringify(S, null, 1)], {type:"application/json"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "maracucho-progreso-" + today() + ".json";
+    a.click();
+    URL.revokeObjectURL(a.href);
+    $("#ioMsg").innerHTML = `<div class="feedback ok">Respaldo descargado.</div>`;
+  };
+  $("#impBtn").onclick = () => $("#impFile").click();
+  $("#impFile").onchange = e => {
+    const f = e.target.files[0]; if(!f) return;
+    const r = new FileReader();
+    r.onload = () => {
+      try{
+        const o = JSON.parse(r.result);
+        if(!o || o.v !== 1 || typeof o.cards !== "object") throw new Error("formato");
+        S = o; save(); renderXP();
+        $("#ioMsg").innerHTML = `<div class="feedback ok">Progreso importado. ${counts().mastered} tarjetas dominadas.</div>`;
+      }catch(err){
+        $("#ioMsg").innerHTML = `<div class="feedback no">Ese archivo no parece un respaldo válido de esta app.</div>`;
+      }
+    };
+    r.readAsText(f);
+  };
+  $("#resetBtn").onclick = () => {
+    if(confirm("¿Seguro? Esto borra XP, tarjetas y estadísticas. No se puede deshacer (a menos que tengas un respaldo).")){
+      S = freshState(); save(); renderXP(); renderSettings();
+    }
+  };
+}
+
+/* =====================================================================
+   LAYER 2 — CONVERSATION PARTNER (Charla)
+   Everything for the AI chat lives between here and the UTIL section.
+   It talks ONLY to the local Python proxy (server.py), never directly
+   to the Anthropic API, so no key ever touches the browser. If the
+   server isn't running, this tab shows setup help and the rest of the
+   app is unaffected.
+===================================================================== */
+const CHARLA = { history:[], model:"haiku", inTok:0, outTok:0, busy:false };
+const CHARLA_MODELS = {
+  haiku:  { id:"claude-haiku-4-5",  label:"Haiku (rápido y barato)", inRate:1.00, outRate:5.00 },
+  sonnet: { id:"claude-sonnet-4-6", label:"Sonnet (más listo)",      inRate:3.00, outRate:15.00 }
+};
+const CHARLA_MAX_TOKENS = 300; // keeps replies short and cheap
+const CHARLA_SYSTEM = [
+  "You are a friendly Venezuelan Spanish conversation partner from Maracaibo, helping an adult English speaker (high beginner, A2) practice for time with his girlfriend's Maracucho family in South Florida.",
+  "Address him with tú, the way his girlfriend's family actually speaks. Do not use voseo. If he addresses an elder in roleplay, model correct usted. If he uses tú where usted belongs (parents, grandparents, first meetings), point it out kindly.",
+  "Use natural Venezuelan Caribbean Spanish with Maracucho flavor: chévere, fino, de pana, chamo, qué molleja, and warm expressions like mijo.",
+  "When he makes a mistake, give ONE short correction in parentheses, then continue the conversation naturally. Don't lecture. Praise correct past-tense use, since that's his weak spot.",
+  "The family is bilingual and code-switches; occasional English or Spanglish from him is fine. You may use common Miami anglicisms (parquear, textear, chequear) occasionally and naturally.",
+  "Keep every reply short: 2 to 4 sentences. Ask a simple follow-up question to keep him talking. Match his level; simple vocabulary, mostly present and past tenses."
+].join(" ");
+
+function renderCharla(){
+  const root = $("#tab-charla");
+  if(HOSTED){
+    root.innerHTML = `
+      <div class="card done-box">
+        <h2>Charla vive en la versión de casa</h2>
+        <p class="sub" style="margin:10px 0 4px">Esta es la versión de bolsillo: funciona sin internet en cualquier parte, pero no puede llegar a tu Mac. Para conversar con tu pana de Maracaibo, usa el otro ícono (el de http://192.168...) cuando estés en tu wifi de casa.</p>
+      </div>`;
+    return;
+  }
+  const m = CHARLA_MODELS[CHARLA.model];
+  const cost = (CHARLA.inTok * m.inRate + CHARLA.outTok * m.outRate) / 1e6;
+  root.innerHTML = `
+    <div class="card">
+      <h2>Charla — compañero de conversación</h2>
+      <div class="topic-pills" style="margin-bottom:8px">
+        ${Object.keys(CHARLA_MODELS).map(k =>
+          `<button class="${CHARLA.model===k?"on":""}" data-m="${k}">${CHARLA_MODELS[k].label}</button>`).join("")}
+      </div>
+      <div class="chat-box" id="chatBox">
+        ${CHARLA.history.length === 0
+          ? '<div class="msg ai">¡Épale! ¿Qué más? Soy tu pana de Maracaibo. Cuéntame, ¿qué hiciste hoy?</div>' : ""}
+        ${CHARLA.history.map((x,i) => x.role === "user"
+          ? `<div class="msg me">${esc(x.content)}</div>`
+          : `<div class="msg ai">${esc(x.content)}<br><button class="say-btn" data-say="${i}" title="Escuchar">&#128264; escuchar</button></div>`).join("")}
+      </div>
+      <div class="chat-input-row">
+        <input type="text" id="chatIn" autocomplete="off" autocapitalize="sentences" placeholder="Escribe en español (o Spanglish)...">
+        <button class="btn" id="chatSend" ${CHARLA.busy?"disabled":""}>${CHARLA.busy?"...":"Enviar"}</button>
+      </div>
+      <div class="cost-line">Sesión: ${CHARLA.inTok + CHARLA.outTok} tokens · costo estimado $${cost.toFixed(4)} (tarifas: $${m.inRate}/M entrada, $${m.outRate}/M salida)</div>
+    </div>`;
+  root.querySelectorAll("[data-m]").forEach(b => {
+    b.onclick = () => { CHARLA.model = b.dataset.m; renderCharla(); };
+  });
+  root.querySelectorAll(".say-btn").forEach(b => {
+    b.onclick = () => { const msg = CHARLA.history[Number(b.dataset.say)]; if(msg) say(msg.content); };
+  });
+  const box = $("#chatBox"); box.scrollTop = box.scrollHeight;
+  const input = $("#chatIn");
+  const send = () => sendCharla(input.value);
+  $("#chatSend").onclick = send;
+  input.onkeydown = e => { if(e.key === "Enter") send(); };
+  input.focus();
+}
+async function sendCharla(text){
+  text = (text || "").trim();
+  if(!text || CHARLA.busy) return;
+  CHARLA.history.push({role:"user", content:text});
+  CHARLA.busy = true;
+  renderCharla();
+  try{
+    if(SYNC.dead) throw new Error("Sin conexión con la Mac");
+    const res = await fetch(apiBase() + "/api/chat", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      signal: AbortSignal.timeout(60000),
+      body: JSON.stringify({
+        model: CHARLA_MODELS[CHARLA.model].id,
+        max_tokens: CHARLA_MAX_TOKENS,
+        system: CHARLA_SYSTEM,
+        messages: CHARLA.history
+      })
+    });
+    const data = await res.json();
+    if(data.error) throw new Error(data.error.message || "Error de la API");
+    const reply = (data.content || []).filter(b => b.type === "text").map(b => b.text).join("\n").trim();
+    if(!reply) throw new Error("Respuesta vacía");
+    CHARLA.history.push({role:"assistant", content:reply});
+    if(data.usage){
+      CHARLA.inTok += data.usage.input_tokens || 0;
+      CHARLA.outTok += data.usage.output_tokens || 0;
+    }
+    logAnswer(true, 5); // a little XP for showing up to converse
+  }catch(err){
+    CHARLA.history.pop(); // don't strand the failed message in history
+    CHARLA.busy = false;
+    renderCharla();
+    const box = $("#chatBox");
+    const hint = document.createElement("div");
+    hint.className = "msg sys";
+    hint.textContent = "No pude conectar con la Mac. Charla necesita que el servidor esté corriendo y que estés en la misma wifi. (El resto de la app funciona sin conexión.) Detalle: " + err.message;
+    box.appendChild(hint);
+    box.scrollTop = box.scrollHeight;
+    return;
+  }
+  CHARLA.busy = false;
+  renderCharla();
+}
+/* ===================== END OF LAYER 2 ===================== */
+
+/* =====================================================================
+   LAYER 2.5 — WIFI SYNC (optional, uses the same server.py)
+   Works two ways:
+     - App opened THROUGH the Mac server: syncs to that same origin.
+     - App opened as a local file on the phone (offline-capable): syncs
+       to MAC_HOST below whenever the Mac is reachable on wifi.
+   Newest timestamp wins. If the Mac isn't reachable, everything keeps
+   working from local storage and syncs the next time you're home.
+===================================================================== */
+const MAC_HOST_DEFAULT = "http://192.168.1.233:8765";  // Noah's Mac mini
+function macHost(){
+  try{ return localStorage.getItem("maracucho_mac_host") || MAC_HOST_DEFAULT; }
+  catch(e){ return MAC_HOST_DEFAULT; }
+}
+function apiBase(){
+  // Served by the Mac already? Use the same origin. Otherwise reach out to the Mac.
+  return (location.protocol === "http:" || location.protocol === "https:") ? "" : macHost();
+}
+const SYNC = { ok:null, last:0, timer:null, dead:false };
+const SYNC_TIMEOUT = 1500;   // fail fast; a LAN Mac answers in milliseconds
+
+// Circuit breaker: once the Mac is confirmed unreachable (e.g. you're on
+// cellular), stop attempting network calls entirely. Hanging fetches to an
+// unreachable LAN address are what made the UI feel stuck. Progress keeps
+// saving locally and syncs on the next launch at home.
+function syncDown(){
+  SYNC.ok = false; SYNC.dead = true;
+  clearTimeout(SYNC.timer);
+}
+
+async function syncPull(){
+  if(SYNC.dead) return "offline";
+  try{
+    const res = await fetch(apiBase() + "/progress", {signal: AbortSignal.timeout(SYNC_TIMEOUT)});
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    const remote = await res.json();
+    SYNC.ok = true; SYNC.dead = false; SYNC.last = Date.now();
+    if(remote && remote.v === 1 && typeof remote.cards === "object" && (remote.ts||0) > (S.ts||0)){
+      S = remote;
+      try{ localStorage.setItem(LS_KEY, JSON.stringify(S)); }catch(e){}
+      renderXP();
+      return "adopted";
+    }
+    return "kept-local";
+  }catch(e){ syncDown(); return "offline"; }
+}
+async function syncPush(){
+  if(SYNC.dead) return;
+  try{
+    const res = await fetch(apiBase() + "/progress", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify(S), signal: AbortSignal.timeout(SYNC_TIMEOUT)
+    });
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    SYNC.ok = true; SYNC.last = Date.now();
+  }catch(e){ syncDown(); }
+}
+function syncPushSoon(){
+  if(SYNC.dead) return;              // never queue a call we know will hang
+  clearTimeout(SYNC.timer);
+  SYNC.timer = setTimeout(syncPush, 2000);
+}
+function updateSyncStatus(){
+  const elS = document.getElementById("syncStatus");
+  if(!elS) return;
+  if(SYNC.ok === true) elS.textContent = "Conectado a la Mac. Última sincronización: " + new Date(SYNC.last).toLocaleTimeString();
+  else if(SYNC.dead) elS.textContent = "Mac no disponible (¿datos móviles?). Todo se guarda en el teléfono; se sincroniza al volver a casa. Toca 'Reintentar' si ya estás en tu wifi.";
+  else if(SYNC.ok === false) elS.textContent = "Mac no disponible. Todo funciona igual y se sincroniza al volver al wifi.";
+  else elS.textContent = "Comprobando...";
+}
+// When the phone comes back to life (app reopened, or network returns),
+// give the Mac another chance. Not in hosted mode: there's no Mac to reach.
+window.addEventListener("online", () => { if(HOSTED) return; SYNC.dead = false; syncPull().then(syncPush); });
+document.addEventListener("visibilitychange", () => {
+  if(HOSTED) return;
+  if(!document.hidden && SYNC.dead && navigator.onLine){
+    SYNC.dead = false;
+    syncPull().then(r => { if(r === "adopted") showTab("inicio"); else syncPush(); });
+  }
+});
+
+/* ============================ UTIL + BOOT ============================ */
+function shuffle(a){
+  for(let i=a.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+buildNav();
+renderXP();
+showTab("inicio");
+/* HOSTED mode: this same file, served over HTTPS (GitHub Pages), becomes the
+   go-anywhere pocket version. The service worker makes it work offline for
+   real. Sync and Charla need the Mac, so they're disabled here; the
+   Mac-served copy (http://192.168.x.x:8765) remains the full version. */
+if(HOSTED){
+  SYNC.dead = true;
+  if("serviceWorker" in navigator){
+    navigator.serviceWorker.register("sw.js").catch(()=>{});
+  }
+} else {
+  syncPull().then(r => { if(r === "adopted") showTab("inicio"); });
+}
+</script>
+</body>
+</html>
