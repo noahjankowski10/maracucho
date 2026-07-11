@@ -1,14 +1,18 @@
 /* Maracucho trainer — service worker (hosted version only)
    Caches the app so it opens instantly and works with no connection at all.
-   Strategy: serve from cache immediately, refresh the cache in the
-   background when online, so updates arrive on the *next* launch. */
+   Serve from cache first, refresh in the background, so updates land on the
+   next launch. Files are cached individually: if one URL is missing (like a
+   bare directory URL that 404s), the rest still cache and offline still works. */
 
-const CACHE = "maracucho-v1";
+const CACHE = "maracucho-v2";
 const ASSETS = ["./", "./index.html", "./sw.js"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(
-    caches.open(CACHE).then((c) => c.addAll(ASSETS)).then(() => self.skipWaiting())
+    caches.open(CACHE).then((c) =>
+      // allSettled, not addAll: one 404 must not abort the whole install
+      Promise.allSettled(ASSETS.map((u) => c.add(u)))
+    ).then(() => self.skipWaiting())
   );
 });
 
@@ -35,9 +39,14 @@ self.addEventListener("fetch", (e) => {
           }
           return res;
         })
-        .catch(() => cached || (e.request.mode === "navigate"
-          ? caches.match("./index.html")
-          : Response.error()));
+        .catch(() => {
+          if (cached) return cached;
+          // Offline and this exact URL isn't cached: fall back to the app shell
+          if (e.request.mode === "navigate") {
+            return caches.match("./index.html").then((r) => r || Response.error());
+          }
+          return Response.error();
+        });
       return cached || fresh;
     })
   );
