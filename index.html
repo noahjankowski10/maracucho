@@ -510,6 +510,46 @@ function retentionChecks(n){
   }
   return out;
 }
+/* Merge two saves instead of letting one clobber the other.
+   Per card: whichever device touched it more recently wins (that device
+   has the truest picture of whether he still knows it). "Proven" (long-term
+   retained) survives if either side proved it, but a later miss on either
+   side still clears it, because the newer record wins outright.
+   Per day of history: whichever device recorded more activity that day wins.
+   XP is recomputed from the merged history, so nothing is double-counted. */
+function mergeStates(a, b){
+  const out = {
+    v:1,
+    vos: (b.ts||0) >= (a.ts||0) ? b.vos : a.vos,
+    boda: (b.ts||0) >= (a.ts||0) ? b.boda : a.boda,
+    cards:{}, hist:{}, xp:0,
+    created: Math.min(a.created||Date.now(), b.created||Date.now()),
+    ts: Date.now()
+  };
+  const ids = new Set([...Object.keys(a.cards||{}), ...Object.keys(b.cards||{})]);
+  for(const id of ids){
+    const ca = (a.cards||{})[id], cb = (b.cards||{})[id];
+    if(!ca){ out.cards[id] = cb; continue; }
+    if(!cb){ out.cards[id] = ca; continue; }
+    const winner = (cb.last||0) >= (ca.last||0) ? cb : ca;
+    const loser  = winner === cb ? ca : cb;
+    out.cards[id] = Object.assign({}, winner, {
+      ok: (ca.ok||0) + (cb.ok||0),      // lifetime counts are additive
+      no: (ca.no||0) + (cb.no||0),
+      lastOk: Math.max(ca.lastOk||0, cb.lastOk||0),
+      // don't resurrect "proven" if the newer record revoked it
+      proven: winner.proven === false ? false : (winner.proven || loser.proven || false)
+    });
+  }
+  const days = new Set([...Object.keys(a.hist||{}), ...Object.keys(b.hist||{})]);
+  for(const d of days){
+    const ha = (a.hist||{})[d], hb = (b.hist||{})[d];
+    const pick = !ha ? hb : !hb ? ha : ((hb.t||0) >= (ha.t||0) ? hb : ha);
+    out.hist[d] = pick;
+    out.xp += pick.xp || 0;
+  }
+  return out;
+}
 function counts(){
   let mastered=0, retained=0, recent=0, seen=0;
   for(const v of VOCAB){
@@ -1076,8 +1116,11 @@ function renderSettings(){
       try{
         const o = JSON.parse(r.result);
         if(!o || o.v !== 1 || typeof o.cards !== "object") throw new Error("formato");
-        S = o; save(); renderXP();
-        $("#ioMsg").innerHTML = `<div class="feedback ok">Progreso importado. ${counts().mastered} tarjetas dominadas.</div>`;
+        const before = counts().mastered;
+        S = mergeStates(S, o);            // combine, never clobber
+        save(); renderXP();
+        const c = counts();
+        $("#ioMsg").innerHTML = `<div class="feedback ok">Progreso combinado (no reemplazado). Dominadas: ${before} &rarr; ${c.mastered}. Retenidas a largo plazo: ${c.retained}. XP: ${S.xp}.</div>`;
       }catch(err){
         $("#ioMsg").innerHTML = `<div class="feedback no">Ese archivo no parece un respaldo válido de esta app.</div>`;
       }
@@ -1242,11 +1285,13 @@ async function syncPull(){
     if(!res.ok) throw new Error("HTTP " + res.status);
     const remote = await res.json();
     SYNC.ok = true; SYNC.dead = false; SYNC.last = Date.now();
-    if(remote && remote.v === 1 && typeof remote.cards === "object" && (remote.ts||0) > (S.ts||0)){
-      S = remote;
+    if(remote && remote.v === 1 && typeof remote.cards === "object"){
+      const merged = mergeStates(S, remote);
+      const changed = JSON.stringify(merged.cards) !== JSON.stringify(S.cards) || merged.xp !== S.xp;
+      S = merged;
       try{ localStorage.setItem(LS_KEY, JSON.stringify(S)); }catch(e){}
       renderXP();
-      return "adopted";
+      if(changed) return "adopted";
     }
     return "kept-local";
   }catch(e){ syncDown(); return "offline"; }
